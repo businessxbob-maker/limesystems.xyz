@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lime Systems — Discord Automation, in dev</title>
+<meta name="description" content="Lime Systems Discord bot. Under active development.">
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{
+    min-height:100vh;
+    background:#000;
+    color:#e8f5d3;
+    font-family:'Manrope',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+}
+
+/* ============ backdrop ============
+ * Pure black with slow drifting citrus mist blobs — very muted so
+ * the lime slice logo carries the color story alone. */
+.stage{
+    position:fixed; inset:0; z-index:0;
+    background:
+        radial-gradient(700px 500px at 20% 20%, rgba(202, 255, 90, .10), transparent 60%),
+        radial-gradient(600px 460px at 82% 75%, rgba(150, 220, 60, .09), transparent 60%),
+        radial-gradient(500px 400px at 55% 50%, rgba(202, 255, 90, .06), transparent 65%),
+        #000;
+    animation: mistDrift 32s ease-in-out infinite alternate;
+}
+@keyframes mistDrift{
+    0%   { background-position: 0 0, 0 0, 0 0, 0 0; }
+    100% { background-position: 20px -10px, -20px 10px, 10px 15px, 0 0; }
+}
+.stage::before{
+    content:'';
+    position:absolute; inset:0;
+    background-image:
+        radial-gradient(1.2px 1.2px at 22% 32%, rgba(202,255,90,.9), transparent 60%),
+        radial-gradient(1px 1px at 68% 18%,   rgba(180,230,100,.8), transparent 60%),
+        radial-gradient(1px 1px at 15% 78%,   rgba(202,255,90,.75), transparent 60%),
+        radial-gradient(1.4px 1.4px at 85% 60%, rgba(160,220,80,.85), transparent 60%),
+        radial-gradient(.8px .8px at 45% 88%, rgba(220,255,120,.7),  transparent 60%);
+    background-size: 700px 700px;
+    animation: motes 60s linear infinite;
+    pointer-events:none;
+    opacity:.6;
+}
+@keyframes motes{ to{ background-position: -700px 700px; } }
+
+/* ============ centerpiece ============ */
+main{
+    position: relative; z-index: 10;
+    min-height: 100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center;
+    padding: 60px 22px;
+    gap: 24px;
+}
+
+/* glass badge holding the lime logo — matches the sitewide
+   liquid-glass language but with a citrus-tinted glow */
+.badge{
+    position:relative;
+    width: min(220px, 46vw);
+    aspect-ratio: 1/1;
+    display: grid; place-items: center;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.35));
+    border: 1px solid rgba(202,255,90,.30);
+    border-radius: 32px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.25),
+        inset 0 -1px 0 rgba(0,0,0,.4),
+        0 20px 60px rgba(0,0,0,.6),
+        0 0 46px rgba(202,255,90,.25),
+        0 0 110px rgba(202,255,90,.12);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+            backdrop-filter: blur(24px) saturate(160%);
+    animation: badgeFloat 6.4s ease-in-out infinite;
+}
+.badge::before{
+    content:'';
+    position:absolute; top:0; left:10%; right:10%; height:1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
+    pointer-events:none;
+}
+@keyframes badgeFloat{
+    0%,100% { transform: translateY(0)    rotate(0);    }
+    50%     { transform: translateY(-6px) rotate(-.6deg); }
+}
+.badge svg.lime{
+    width: 68%; height: 68%;
+    filter:
+        drop-shadow(0 0 14px rgba(202,255,90,.55))
+        drop-shadow(0 0 32px rgba(180,230,100,.35));
+    animation: limeSlowSpin 22s linear infinite;
+    transform-origin: center;
+}
+@keyframes limeSlowSpin{
+    from { transform: rotate(-6deg); }
+    50%  { transform: rotate(0deg);  }
+    to   { transform: rotate(6deg);  }
+}
+
+/* status pill */
+.status{
+    display:inline-flex; align-items:center; gap:9px;
+    padding:7px 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.25));
+    border:1px solid rgba(202,255,90,.30);
+    border-radius:999px;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:10.5px;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    color:#e5ffb0;
+    -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 6px 18px rgba(0,0,0,.5), 0 0 22px rgba(202,255,90,.2);
+}
+.status .led{
+    width:7px; height:7px; border-radius:50%;
+    background:#caff5a;
+    box-shadow: 0 0 10px #caff5a, 0 0 22px rgba(202,255,90,.5);
+    animation: blip 1.6s ease-in-out infinite;
+}
+@keyframes blip{ 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* headline */
+h1{
+    font-family:'Anton',sans-serif;
+    font-size: clamp(56px, 10vw, 132px);
+    line-height: .95;
+    letter-spacing: .01em;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow:
+        0 0 14px rgba(255,255,255,.35),
+        0 0 40px rgba(202,255,90,.30);
+}
+h1 .lime{
+    background: linear-gradient(180deg, #eaffb1 0%, #caff5a 55%, #85c22a 100%);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:transparent;
+    filter: drop-shadow(0 0 12px rgba(202,255,90,.55));
+}
+
+/* lede */
+.lede{
+    font-family:'Space Grotesk',sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    color: #c8d9a8;
+    max-width: 620px;
+    padding: 0 12px;
+}
+.lede b{ color:#fff; }
+.lede .vex{ color:#caff5a; font-weight:700; text-shadow: 0 0 10px rgba(202,255,90,.4); }
+
+/* build meter */
+.meter{
+    width: min(360px, 78vw);
+    padding: 14px 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.35));
+    border: 1px solid rgba(202,255,90,.24);
+    border-radius: 16px;
+    -webkit-backdrop-filter: blur(18px);
+            backdrop-filter: blur(18px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 12px 30px rgba(0,0,0,.5);
+    text-align: left;
+}
+.meter .k{
+    display:flex; justify-content:space-between; align-items:baseline;
+    font-family:'JetBrains Mono',monospace;
+    font-size: 10px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: #b6cc85;
+    margin-bottom: 10px;
+}
+.meter .k b{ color:#eaffb1; font-weight:700; }
+.meter .bar{
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.06);
+    overflow:hidden;
+    position:relative;
+}
+.meter .bar > span{
+    display:block; height:100%; width: 38%;
+    background: linear-gradient(90deg, #85c22a, #caff5a 45%, #eaffb1 100%);
+    background-size: 200% 100%;
+    border-radius: 999px;
+    box-shadow: 0 0 12px rgba(202,255,90,.7), 0 0 24px rgba(180,230,100,.4);
+    animation: barShimmer 2.2s linear infinite;
+}
+@keyframes barShimmer{
+    0%   { background-position: 200% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* footer bits */
+.tiny{
+    margin-top: 8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size: 11px;
+    letter-spacing: .24em;
+    color: #8a9c68;
+    text-transform: uppercase;
+}
+.tiny a{ color:#caff5a; text-decoration:none; }
+.tiny a:hover{ text-decoration:underline; }
+
+@media (prefers-reduced-motion: reduce){
+    .stage, .stage::before, .badge, .badge svg.lime, .status .led, .meter .bar > span{ animation: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="stage" aria-hidden="true"></div>
+
+<main>
+    <div class="badge" aria-hidden="true">
+        <!-- Half-lime slice SVG. Central pith, 8 juicy segments,
+             thin rind, drop-shadow adds the citrus halo. -->
+        <svg class="lime" viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="pulp" cx="0" cy="0" r="86" gradientUnits="userSpaceOnUse">
+                    <stop offset="0"    stop-color="#eaffb1"/>
+                    <stop offset="0.55" stop-color="#caff5a"/>
+                    <stop offset="1"    stop-color="#85c22a"/>
+                </radialGradient>
+                <radialGradient id="rind" cx="0" cy="0" r="98" gradientUnits="userSpaceOnUse">
+                    <stop offset="0.86" stop-color="#a8dd3a"/>
+                    <stop offset="1"    stop-color="#4d6f10"/>
+                </radialGradient>
+                <linearGradient id="gloss" x1="0" y1="-100" x2="0" y2="100">
+                    <stop offset="0"    stop-color="#ffffff" stop-opacity=".55"/>
+                    <stop offset="0.35" stop-color="#ffffff" stop-opacity=".08"/>
+                    <stop offset="1"    stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+
+            <!-- rind ring -->
+            <circle cx="0" cy="0" r="94" fill="url(#rind)"/>
+            <!-- pith (white-ish thin band) -->
+            <circle cx="0" cy="0" r="82" fill="#f4ffdd"/>
+            <!-- pulp disk -->
+            <circle cx="0" cy="0" r="76" fill="url(#pulp)"/>
+
+            <!-- 8 pulp segment dividers, radiating from center.
+                 Each is a slim triangle in near-white so the slice
+                 reads as "cut through the middle". -->
+            <g fill="#f4ffdd">
+                <path d="M 0 0 L 3 -74 L -3 -74 Z"/>
+                <path d="M 0 0 L 55 -50 L 51 -54 Z"/>
+                <path d="M 0 0 L 74 -3 L 74 3 Z"/>
+                <path d="M 0 0 L 55 50 L 51 54 Z"/>
+                <path d="M 0 0 L 3 74 L -3 74 Z"/>
+                <path d="M 0 0 L -55 50 L -51 54 Z"/>
+                <path d="M 0 0 L -74 3 L -74 -3 Z"/>
+                <path d="M 0 0 L -55 -50 L -51 -54 Z"/>
+            </g>
+
+            <!-- juice cells: little translucent teardrops inside each segment -->
+            <g fill="#eaffb1" opacity=".55">
+                <ellipse cx="0"   cy="-40" rx="5" ry="14"/>
+                <ellipse cx="28"  cy="-28" rx="5" ry="14" transform="rotate(45)"/>
+                <ellipse cx="40"  cy="0"   rx="5" ry="14" transform="rotate(90)"/>
+                <ellipse cx="28"  cy="28"  rx="5" ry="14" transform="rotate(135)"/>
+                <ellipse cx="0"   cy="40"  rx="5" ry="14"/>
+                <ellipse cx="-28" cy="28"  rx="5" ry="14" transform="rotate(-135)"/>
+                <ellipse cx="-40" cy="0"   rx="5" ry="14" transform="rotate(-90)"/>
+                <ellipse cx="-28" cy="-28" rx="5" ry="14" transform="rotate(-45)"/>
+            </g>
+
+            <!-- glossy top-half highlight -->
+            <circle cx="0" cy="0" r="76" fill="url(#gloss)" opacity=".9"/>
+
+            <!-- center dot / navel -->
+            <circle cx="0" cy="0" r="4" fill="#8bb92e"/>
+        </svg>
+    </div>
+
+    <div class="status"><span class="led"></span>Under Development</div>
+
+    <h1><span class="lime">Lime</span> Systems</h1>
+    <p class="lede">
+        This domain is managed by <b>Lime System Discord Bot</b> — a smart moderation + community-automation stack that's in active development. Come back when it launches, or reach us in the Discord.
+    </p>
+
+    <div class="meter" aria-hidden="true">
+        <div class="k"><span>Build progress</span><b>38%</b></div>
+        <div class="bar"><span></span></div>
+    </div>
+
+    <p class="tiny">
+        limesystems.xyz · <a href="https://github.com/businessxbob-maker/limesystems.xyz">source</a>
+    </p>
+</main>
+</body>
+</html>

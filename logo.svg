@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-100 -100 200 200">
+    <defs>
+        <radialGradient id="pulp" cx="0" cy="0" r="86" gradientUnits="userSpaceOnUse">
+            <stop offset="0"    stop-color="#eaffb1"/>
+            <stop offset="0.55" stop-color="#caff5a"/>
+            <stop offset="1"    stop-color="#85c22a"/>
+        </radialGradient>
+        <radialGradient id="rind" cx="0" cy="0" r="98" gradientUnits="userSpaceOnUse">
+            <stop offset="0.86" stop-color="#a8dd3a"/>
+            <stop offset="1"    stop-color="#4d6f10"/>
+        </radialGradient>
+    </defs>
+    <rect x="-100" y="-100" width="200" height="200" fill="#000"/>
+    <circle cx="0" cy="0" r="94" fill="url(#rind)"/>
+    <circle cx="0" cy="0" r="82" fill="#f4ffdd"/>
+    <circle cx="0" cy="0" r="76" fill="url(#pulp)"/>
+    <g fill="#f4ffdd">
+        <path d="M 0 0 L 3 -74 L -3 -74 Z"/>
+        <path d="M 0 0 L 55 -50 L 51 -54 Z"/>
+        <path d="M 0 0 L 74 -3 L 74 3 Z"/>
+        <path d="M 0 0 L 55 50 L 51 54 Z"/>
+        <path d="M 0 0 L 3 74 L -3 74 Z"/>
+        <path d="M 0 0 L -55 50 L -51 54 Z"/>
+        <path d="M 0 0 L -74 3 L -74 -3 Z"/>
+        <path d="M 0 0 L -55 -50 L -51 -54 Z"/>
+    </g>
+    <circle cx="0" cy="0" r="4" fill="#8bb92e"/>
+</svg>
